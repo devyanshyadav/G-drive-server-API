@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createFiles } from "../controllers/file.controller.js";
+import { createFiles, deleteFiles, getFiles, moveFiles, renameFile } from "../controllers/file.controller.js";
 import upload from "../middlewares/multer.middleware.js";
 
 const fileRouter = Router();
@@ -10,5 +10,10 @@ fileRouter.route("/create-files").post(
   ]),
   createFiles
 );
+
+fileRouter.route("/get-files").post(getFiles);
+fileRouter.route("/delete-files").post(deleteFiles);
+fileRouter.route("/rename-file").post(renameFile);
+fileRouter.route("move-files").post( moveFiles);
 
 export default fileRouter;

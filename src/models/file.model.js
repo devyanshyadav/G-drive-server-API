@@ -10,13 +10,21 @@ const fileSchema = new Schema({
     type: String,
     required: true,
   },
-  fileSize: {
+  fileUrl: {
     type: String,
     required: true,
   },
-  fileType: {
+  publicId: {
     type: String,
     required: true,
+  },
+  fileInfo: {
+    width: Number,
+    height: Number,
+    size: Number,
+    resource_type: String,
+    format: String,
+    bytes: Number,
   },
   parentFolder: {
     type: Schema.Types.ObjectId,
