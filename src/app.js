@@ -20,13 +20,17 @@ import folderRouter from "./routes/folder.route.js";
 import verifyJWT from "./middlewares/auth.middleware.js";
 import fileRouter from "./routes/file.route.js";
 import shareRouter from "./routes/share.route.js";
+import trashRouter from "./routes/trash.route.js";
+import starredRouter from "./routes/starred.route.js";
 app.use("/api/v1/auth", userRouter);
 app.use("/api/v1/folder", verifyJWT, folderRouter);
 app.use("/api/v1/file", verifyJWT, fileRouter);
-app.use ("/api/v1/share", verifyJWT, shareRouter);
+app.use("/api/v1/share", verifyJWT, shareRouter);
+app.use("/api/v1/trash", verifyJWT, trashRouter);
+app.use("/api/v1/starred", verifyJWT, starredRouter);
 
 app.get("/", (req, res) => {
-  res.send("Hello world");
+  res.send("Hello world Google Drive Clone API");
 });
 
 export default app;

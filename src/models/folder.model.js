@@ -16,6 +16,20 @@ const folderSchema = new Schema(
       type: String,
       required: true,
     },
+    isTrashed: {
+      status: {
+        type: Boolean,
+        default: false,
+      },
+      date: {
+        type: Date,
+      },
+    },
+
+    isStarred: {
+      type: Boolean,
+    },
+
     subFolders: [{ type: Schema.Types.ObjectId, ref: "Folder" }],
   },
   { timestamps: true }

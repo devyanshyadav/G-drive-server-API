@@ -61,7 +61,7 @@ const getSharedItemsByMe = async (req, res) => {
     if (!share) return sendErrorResponse(res, "Share not found", 404);
 
     return sendSuccessResponse(res, "Share found successfully", 200, share);
-  } catch {
+  } catch (error) {
     return sendErrorResponse(res, error.message, 400);
   }
 };

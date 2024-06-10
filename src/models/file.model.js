@@ -31,6 +31,19 @@ const fileSchema = new Schema({
     ref: "Folder",
     required: true,
   },
+  isTrashed: {
+    status: {
+      type: Boolean,
+      default: false,
+    },
+    date: {
+      type: Date,
+    },
+  },
+
+  isStarred: {
+    type: Boolean,
+  },
 });
 const File = mongoose.model("File", fileSchema);
 
