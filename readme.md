@@ -34,7 +34,7 @@ src
 │   ├── file.route.js           // (/createfile, /renamefile, /deletefile, /movefile, /getfile) ---verified---
 │   ├── share.route.js          // (/share-item, /get-shared-items-by-me, /get-shared-items-with-me, /update-shared-by-me, /remove-shared-item) ---verified---
 │   ├── trash.route.js          // (/move-to-trash, /get-trashed-items, /delete-trashed-items, /restore-trashed-items) ---verified---
-│   └── starred.route.js        // (/star, /unstar) ---verified---
+│   └── starred.route.js        // (/add-to-starred, /get-starred-items, /remove-starred-items) ---verified---
 │
 ├── utils
 │   ├── cloudinary.js           // (cloudinary config and uploadFile function) ---verified---
