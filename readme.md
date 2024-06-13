@@ -12,7 +12,7 @@ src
     
     -share.controller.js (regarding sharing files or folders, getting shared files or folders with me by me)  ---verified---
 
-    -trash.controller.js (regarding transferring files or folders from one user to another)
+    -trash.controller.js (regarding transferring files or folders from one user to another)---verified---
 
    
    

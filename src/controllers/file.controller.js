@@ -13,7 +13,7 @@ const createFiles = async (req, res) => {
     if (!req.files || !req.files["files"]) {
       throw new Error("No files were uploaded");
     }
-
+    
     const files = req.files["files"];
     await Promise.all(
       files.map(async (file) => {

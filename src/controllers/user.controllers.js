@@ -161,7 +161,7 @@ const resetPassword = async (req, res) => {
     const user = await User.findOne({
       _id: id,
       resetToken: token,
-      resetTokenExpires: { $gt: Date.now()}, // 1 hour
+      resetTokenExpires: { $gt: Date.now() }, // 1 hour
     });
 
     if (!user) {
@@ -180,7 +180,11 @@ const resetPassword = async (req, res) => {
     if (error.name === "ValidationError") {
       return sendErrorResponse(res, error.message, 400);
     }
-    return sendErrorResponse(res, "An error occurred while resetting the password", 500);
+    return sendErrorResponse(
+      res,
+      "An error occurred while resetting the password",
+      500
+    );
   }
 };
 

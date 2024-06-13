@@ -31,17 +31,24 @@ const userSchema = new Schema(
 );
 
 // hashing password
-userSchema.pre("save", function (next) {
-  if (this.password) {
-    var salt = bcrypt.genSaltSync(10);
-    this.password = bcrypt.hashSync(this.password, salt);
-  }
-  next();
-});
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
 
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
 // during login and authentication
-userSchema.methods.isPasswordCorrect = function (password) {
-  return bcrypt.compare(password, this.password);
+userSchema.methods.isPasswordCorrect = async function (password) {
+  try {
+    return await bcrypt.compare(password, this.password);
+  } catch (error) {
+    throw new Error("Error while comparing passwords");
+  }
 };
 
 userSchema.methods.generateAccessToken = function () {

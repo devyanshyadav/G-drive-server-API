@@ -8,6 +8,7 @@ const itemTypes = {
   FOLDER: "folder",
 };
 
+// Function to move item to trash
 const moveToTrash = async (req, res) => {
   const { itemIds, itemType } = req.body;
 
@@ -112,32 +113,35 @@ const trashedItems = async (req, res) => {
 
 const deleteTrashedItems = async (req, res) => {
   const { trashedItems } = req.body;
-  //Here trashed Items will be an object with trashedFiles and trashedFolders
+  const userId = req.user._id;
+  // Check if trashedItems is a valid object and has trashedFiles and trashedFolders properties
   if (
     !trashedItems ||
     typeof trashedItems !== "object" ||
-    !trashedItems.trashedFiles ||
-    !trashedItems.trashedFolders
+    (!trashedItems.trashedFiles.length && !trashedItems.trashedFolders.length)
   ) {
-    return sendErrorResponse(res, "Invalid trashedItems format", 400);
+    return sendErrorResponse(res, "Items to be deleted are required", 400);
   }
 
   try {
+    // Delete the files and folders owned by the user
     if (trashedItems.trashedFiles.length > 0) {
-      const filesDeleted = await File.deleteMany({
+      const files = await File.deleteMany({
         _id: { $in: trashedItems.trashedFiles },
+        owner: userId,
       });
-      if (!filesDeleted) {
-        throw new Error("Files not found");
+      if (!files) {
+        throw new Error("Items not found");
       }
     }
-
-    if (trashedItems.trashedFolders.length > 0) {
-      const foldersDeleted = await Folder.deleteMany({
+    if (trashedItems && trashedItems.trashedFolders.length > 0) {
+      const folders = await Folder.deleteMany({
         _id: { $in: trashedItems.trashedFolders },
+        owner: userId,
       });
-      if (!foldersDeleted) {
-        throw new Error("Folders not found");
+
+      if (!folders) {
+        throw new Error("Items not found");
       }
     }
 
