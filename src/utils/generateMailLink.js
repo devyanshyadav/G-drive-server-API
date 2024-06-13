@@ -21,7 +21,7 @@ const generateMailLink = async (requestedUser, task) => {
         ? `${process.env.CLIENT_URL}/reset-password?id=${user._id}&token=${token}`
         : null;
 
-    const res = await sendMail(user.email, generatedLink, task, user.name);
+    const res = await sendMail(user.email, generatedLink, task, user.userName);
 
     return res;
   } catch (error) {

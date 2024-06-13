@@ -14,6 +14,6 @@ fileRouter.route("/create-files").post(
 fileRouter.route("/get-files").post(getFiles);
 fileRouter.route("/delete-files").post(deleteFiles);
 fileRouter.route("/rename-file").post(renameFile);
-fileRouter.route("move-files").post( moveFiles);
+fileRouter.route("/move-files").post( moveFiles);
 
 export default fileRouter;

@@ -1,14 +1,14 @@
 import User from "../models/user.model.js";
-import uploadFile from "../utils/cloudinary.js";
 import generateMailLink from "../utils/generateMailLink.js";
 import sendErrorResponse from "../utils/sendErrorResponse.js";
 import sendSuccessResponse from "../utils/sendSuccessResponse.js";
 
+// Function to generate access and refresh tokens
 const generateAccessAndRefreshToken = async (userID) => {
   try {
     const user = await User.findById(userID);
     if (!user) {
-      return sendErrorResponse(res, "User not found", 404);
+      throw new Error("User not found");
     }
 
     const accessToken = user.generateAccessToken();
@@ -29,6 +29,7 @@ const generateAccessAndRefreshToken = async (userID) => {
   }
 };
 
+// Function to register a new user
 const registerUser = async (req, res) => {
   try {
     const { userName, email, password } = req.body;
@@ -41,21 +42,10 @@ const registerUser = async (req, res) => {
       return sendErrorResponse(res, "User already exists", 400);
     }
 
-    let avatar = "";
-
-    if (req.file) {
-      const avatarLocalPath = req.file.path;
-      avatar = await uploadFile(avatarLocalPath);
-      if (!avatar) {
-        return sendErrorResponse(res, "Error while uploading", 400);
-      }
-    }
-
     const user = await User.create({
       userName,
       email,
       password,
-      avatar: avatar.url || "",
     });
     return sendSuccessResponse(res, "User created successfully", 201, user);
   } catch (error) {
@@ -63,6 +53,7 @@ const registerUser = async (req, res) => {
   }
 };
 
+// Function to login a user
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password)
@@ -99,6 +90,7 @@ const loginUser = async (req, res) => {
   }
 };
 
+// Function to logout a user
 const logoutUser = async (req, res) => {
   try {
     await User.findByIdAndUpdate(
@@ -127,6 +119,7 @@ const logoutUser = async (req, res) => {
   }
 };
 
+// Function to get current user
 const getCurrentUser = async (req, res) => {
   try {
     return sendSuccessResponse(res, "User fetched successfully", 200, req.user);
@@ -135,16 +128,16 @@ const getCurrentUser = async (req, res) => {
   }
 };
 
+// Function to forget user password and send mail
 const forgetUserPassword = async (req, res) => {
   const { email } = req.body;
   if (!email) return sendErrorResponse(res, "Email is required", 400);
   try {
     const user = await User.findOne({ email });
-    if (!user) return sendErrorResponse(res, "User not found", 400);
+    if (!user) throw new Error("User not found");
 
     const result = await generateMailLink(user, "reset");
-    if (!result)
-      return sendErrorResponse(res, "Error while sending mail: Try again", 400);
+    if (!result) throw new Error("Something went wrong while sending mail");
 
     return sendSuccessResponse(res, "Mail sent successfully", 200);
     // Here otherwise send mail to user
@@ -153,6 +146,7 @@ const forgetUserPassword = async (req, res) => {
   }
 };
 
+// Function to reset user password
 const resetPassword = async (req, res) => {
   const { password, confirmPassword } = req.body;
   const { id, token } = req.query;
@@ -164,27 +158,29 @@ const resetPassword = async (req, res) => {
     return sendErrorResponse(res, "Passwords do not match", 400);
 
   try {
-    const user = await User.findOneAndUpdate(
-      {
-        _id: id,
-        resetToken: token,
-        resetTokenExpires: { $gt: Date.now() },
-      },
-      {
-        password: password,
-        resetToken: undefined,
-        resetTokenExpires: undefined,
-      },
-      { new: true, runValidators: true }
-    );
-    if (!user) return sendErrorResponse(res, "Invalid or expired token", 400);
+    const user = await User.findOne({
+      _id: id,
+      resetToken: token,
+      resetTokenExpires: { $gt: Date.now()}, // 1 hour
+    });
+
+    if (!user) {
+      return sendErrorResponse(res, "Invalid or expired token", 400);
+    }
+
+    user.password = password;
+    user.resetToken = undefined;
+    user.resetTokenExpires = undefined;
 
     await user.save();
 
     return sendSuccessResponse(res, "Password reset successfully", 200);
   } catch (error) {
     console.error(error);
-    return sendErrorResponse(res, error.message, 500);
+    if (error.name === "ValidationError") {
+      return sendErrorResponse(res, error.message, 400);
+    }
+    return sendErrorResponse(res, "An error occurred while resetting the password", 500);
   }
 };
 

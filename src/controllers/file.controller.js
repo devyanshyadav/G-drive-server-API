@@ -4,13 +4,14 @@ import sendErrorResponse from "../utils/sendErrorResponse.js";
 import sendSuccessResponse from "../utils/sendSuccessResponse.js";
 import { v2 as cloudinary } from "cloudinary";
 
+//Function to create files
 const createFiles = async (req, res) => {
   const { folderId } = req.body;
   if (!folderId) return sendErrorResponse(res, "All fields are required", 400);
 
   try {
     if (!req.files || !req.files["files"]) {
-      return sendErrorResponse(res, "Files not found", 400);
+      throw new Error("No files were uploaded");
     }
 
     const files = req.files["files"];
@@ -47,18 +48,20 @@ const createFiles = async (req, res) => {
   }
 };
 
+//Function to get files
 const getFiles = async (req, res) => {
   const { folderId } = req.body;
   if (!folderId) return sendErrorResponse(res, "All fields are required", 400);
   try {
     const files = await File.find({ folderId: folderId });
-    if (!files) return sendErrorResponse(res, "Files not found", 404);
+    if (!files.length > 0) throw new Error("Files not found");
     return sendSuccessResponse(res, "Files fetched successfully", 200, files);
   } catch (error) {
     return sendErrorResponse(res, error.message, 400);
   }
 };
 
+//Function to delete files
 const deleteFiles = async (req, res) => {
   const { fileIds } = req.body;
   if (!fileIds || !Array.isArray(fileIds) || fileIds.length === 0) {
@@ -88,6 +91,7 @@ const deleteFiles = async (req, res) => {
   }
 };
 
+//Function to rename file
 const renameFile = async (req, res) => {
   const { fileId, fileName } = req.body;
   try {
@@ -110,10 +114,11 @@ const renameFile = async (req, res) => {
   }
 };
 
+//Function to move files
 const moveFiles = async (req, res) => {
   const { filesInfo } = req.body;
   if (!filesInfo || !Array.isArray(filesInfo) || filesInfo.length === 0) {
-    throw new Error("File fields are required");
+    return sendErrorResponse(res, "File fields are required", 400);
   }
   try {
     await Promise.all(

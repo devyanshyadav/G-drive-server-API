@@ -30,7 +30,7 @@ app.use("/api/v1/trash", verifyJWT, trashRouter);
 app.use("/api/v1/starred", verifyJWT, starredRouter);
 
 app.get("/", (req, res) => {
-  res.send("Hello world Google Drive Clone API");
+  res.send("Hello world! This is Google Drive Clone API");
 });
 
 export default app;

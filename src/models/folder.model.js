@@ -15,6 +15,7 @@ const folderSchema = new Schema(
     folderName: {
       type: String,
       required: true,
+      unique: true,
     },
     isTrashed: {
       status: {

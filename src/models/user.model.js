@@ -6,21 +6,21 @@ const userSchema = new Schema(
   {
     userName: {
       type: String,
+      required: true,
     },
     email: {
       type: String,
       unique: true,
+      required: true,
     },
     password: {
       type: String,
-    },
-    avatar: {
-      type: String,
+      required: true,
     },
     refreshToken: {
       type: String,
     },
-    resetToken:{
+    resetToken: {
       type: String,
     },
     resetTokenExpires: {
@@ -30,16 +30,13 @@ const userSchema = new Schema(
   { timestamps: true }
 );
 
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
-
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (err) {
-    next(err);
+// hashing password
+userSchema.pre("save", function (next) {
+  if (this.password) {
+    var salt = bcrypt.genSaltSync(10);
+    this.password = bcrypt.hashSync(this.password, salt);
   }
+  next();
 });
 
 // during login and authentication

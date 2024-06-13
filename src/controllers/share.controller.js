@@ -8,6 +8,7 @@ const itemTypes = {
   FOLDER: "folder",
 };
 
+// Function to share an item
 const shareItem = async (req, res) => {
   const { sharedEmails, sharedItems, itemType } = req.body;
   if (!sharedEmails || !sharedItems || !itemType) {
@@ -28,11 +29,7 @@ const shareItem = async (req, res) => {
     const userIds = users.map((user) => user._id);
 
     if (userIds.length !== sharedEmails.length) {
-      return sendErrorResponse(
-        res,
-        "Some emails do not correspond to valid users",
-        400
-      );
+      throw new Error("Some emails do not correspond to valid users");
     }
 
     const share = await Share.create({
@@ -43,7 +40,7 @@ const shareItem = async (req, res) => {
     });
 
     if (!share) {
-      return sendErrorResponse(res, "Failed to create share", 400);
+      throw new Error("Failed to create share");
     }
 
     return sendSuccessResponse(res, "Share created successfully", 201, share);
@@ -52,13 +49,14 @@ const shareItem = async (req, res) => {
   }
 };
 
+// Function to get shared items to user
 const getSharedItemsByMe = async (req, res) => {
   try {
     const share = await Share.find({ owner: req.user._id })
       .populate("sharedEmails")
       .populate("sharedItems");
 
-    if (!share) return sendErrorResponse(res, "Share not found", 404);
+    if (!share.length) throw new Error("Share not found");
 
     return sendSuccessResponse(res, "Share found successfully", 200, share);
   } catch (error) {
@@ -66,31 +64,39 @@ const getSharedItemsByMe = async (req, res) => {
   }
 };
 
+// Function to get shared items from user
 const getSharedItemsWithMe = async (req, res) => {
   try {
     const share = await Share.find({
       sharedEmails: { $in: [req.user._id] },
     }).populate("sharedItems");
 
-    if (!share) return sendErrorResponse(res, "Share not found", 404);
+    if (!share.length) throw new Error("Share not found");
     return sendSuccessResponse(res, "Share found successfully", 200, share);
   } catch (error) {
     return sendErrorResponse(res, error.message, 400);
   }
 };
 
+// Function to update shared items
 const updateSharedItem = async (req, res) => {
-  const { sharedItemId, updatedSharedItems } = req.body;
-  if (!sharedItemId)
+  const { sharedItemId, updatedSharedEmails } = req.body;
+  if (!sharedItemId || !updatedSharedEmails)
     return sendErrorResponse(res, "All fields are required", 400);
   try {
+    // Fetch user IDs based on sharedEmails
+    const users = await User.find({
+      email: { $in: updatedSharedEmails },
+    }).select("_id");
+    const userIds = users.map((user) => user._id);
+
     const share = await Share.findByIdAndUpdate(
-      sharedItemId,
-      { $pull: { sharedItems: updatedSharedItems } },
+      { _id: sharedItemId, owner: req.user._id },
+      { $set: { sharedEmails: userIds } },
       { new: true, runValidators: true }
     );
     if (!share) {
-      return sendErrorResponse(res, "Share not found", 404);
+      throw new Error("Share not found");
     }
     return sendSuccessResponse(res, "Share updated successfully", 200, share);
   } catch (error) {
@@ -98,12 +104,16 @@ const updateSharedItem = async (req, res) => {
   }
 };
 
+// Function to remove shared item
 const removeSharedItem = async (req, res) => {
   const { sharedItemId } = req.body;
   if (!sharedItemId)
     return sendErrorResponse(res, "All fields are required", 400);
   try {
-    const share = await Share.findByIdAndDelete(sharedItemId);
+    const share = await Share.findOneAndDelete({
+      _id: sharedItemId,
+      owner: req.user._id,
+    });
     if (!share) {
       return sendErrorResponse(res, "Share not found", 404);
     }

@@ -2,24 +2,37 @@ import Folder from "../models/folder.model.js";
 import sendErrorResponse from "../utils/sendErrorResponse.js";
 import sendSuccessResponse from "../utils/sendSuccessResponse.js";
 
+//Function to create folder
 const createFolder = async (req, res) => {
   const { folderName, parentFolder } = req.body;
   if (!folderName)
     return sendErrorResponse(res, "All fields are required", 400);
+
   try {
+    // Check if a folder with the same name already exists for the user
+    const existingFolder = await Folder.findOne({
+      folderName,
+      owner: req.user._id,
+    });
+
+    if (existingFolder) {
+      throw new Error("Folder with the same name already exists");
+    }
+
     const folder = await Folder.create({
       folderName,
       parentFolder,
       owner: req.user._id,
     });
 
-    if (!folder) return sendErrorResponse(res, "Folder not created", 400);
+    if (!folder) throw new Error("Failed to created");
     return sendSuccessResponse(res, "Folder created successfully", 201, folder);
   } catch (error) {
     return sendErrorResponse(res, error.message, 400);
   }
 };
 
+//Function to get folders
 const getFolders = async (req, res) => {
   try {
     const folders = await Folder.aggregate([
@@ -68,6 +81,7 @@ const getFolders = async (req, res) => {
   }
 };
 
+//Function to rename folder
 const renameFolder = async (req, res) => {
   const { folderId, folderName } = req.body;
 
@@ -92,6 +106,7 @@ const renameFolder = async (req, res) => {
   }
 };
 
+//Function to move folder
 const moveFolder = async (req, res) => {
   const { folderId, parentFolderId } = req.body;
 
@@ -105,7 +120,7 @@ const moveFolder = async (req, res) => {
       { new: true, runValidators: true }
     );
     if (!folder) {
-      return sendErrorResponse(res, "Folder not found", 404);
+      throw new Error("Folder not found");
     }
 
     return sendSuccessResponse(res, "Folder moved successfully", 200, folder);
@@ -114,13 +129,18 @@ const moveFolder = async (req, res) => {
   }
 };
 
+//Function to delete folder
 const deleteFolder = async (req, res) => {
   const { folderId } = req.body;
   if (!folderId) return sendErrorResponse(res, "All fields are required", 400);
   try {
     const folder = await Folder.findByIdAndDelete(folderId);
 
-    if (!folder) return sendErrorResponse(res, "Folder not found", 404);
+    if (!folder) throw new Error("Folder not found");
+
+    const subFolders = await Folder.deleteMany({ parentFolder: folderId });
+
+    if (!subFolders) throw new Error("Failed to delete subfolders");
 
     return sendSuccessResponse(res, "Folder deleted successfully", 200, folder);
   } catch (error) {

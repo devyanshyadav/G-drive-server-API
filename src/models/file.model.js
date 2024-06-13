@@ -9,6 +9,7 @@ const fileSchema = new Schema({
   fileName: {
     type: String,
     required: true,
+    unique: true,
   },
   fileUrl: {
     type: String,
@@ -26,7 +27,7 @@ const fileSchema = new Schema({
     format: String,
     bytes: Number,
   },
-  parentFolder: {
+  folderId: {
     type: Schema.Types.ObjectId,
     ref: "Folder",
     required: true,
