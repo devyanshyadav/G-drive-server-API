@@ -3,6 +3,7 @@ import Folder from "../models/folder.model.js";
 import sendErrorResponse from "../utils/sendErrorResponse.js";
 import sendSuccessResponse from "../utils/sendSuccessResponse.js";
 
+// Function to add item to starred
 const addToStarred = async (req, res) => {
   const { itemId, itemType } = req.body;
 
@@ -18,9 +19,7 @@ const addToStarred = async (req, res) => {
         { _id: itemId, owner: req.user._id },
         {
           $set: {
-            isStarred: {
-              status: true,
-            },
+            isStarred: true,
           },
         },
         { new: true }
@@ -30,9 +29,7 @@ const addToStarred = async (req, res) => {
         { _id: itemId, owner: req.user._id },
         {
           $set: {
-            isStarred: {
-              status: true,
-            },
+            isStarred: true,
           },
         },
         { new: true }
@@ -56,16 +53,17 @@ const addToStarred = async (req, res) => {
   }
 };
 
+// Function to get starred items
 const starredItems = async (req, res) => {
   try {
     const files = await File.find({
       owner: req.user._id,
-      "isStarred.status": true,
+      isStarred: true,
     });
 
     const folders = await Folder.find({
       owner: req.user._id,
-      "isStarred.status": true,
+      isStarred: true,
     });
 
     if (files.length === 0 && folders.length === 0) {
@@ -80,14 +78,14 @@ const starredItems = async (req, res) => {
   }
 };
 
+// Function to remove item from starred
 const removeStarredItems = async (req, res) => {
   const { starredItems } = req.body;
 
   if (
     !starredItems ||
     typeof starredItems !== "object" ||
-    !starredItems.starredFiles ||
-    !starredItems.starredFolders
+    (!starredItems.starredFiles.length && !starredItems.starredFolders.length)
   ) {
     return sendErrorResponse(res, "Invalid starredItems format", 400);
   }
@@ -96,9 +94,9 @@ const removeStarredItems = async (req, res) => {
     if (starredItems.starredFiles.length > 0) {
       const removedStarredFiles = await File.updateMany(
         { _id: { $in: starredItems.starredFiles }, owner: req.user._id },
-        { $set: { "isStarred.status": false } }
+        { $set: { isStarred: false } }
       );
-      if (!removedStarredFiles || removedStarredFiles.nModified === 0) {
+      if (removedStarredFiles.nModified == 0) {
         throw new Error("Files not found or not owned by user");
       }
     }
@@ -106,9 +104,9 @@ const removeStarredItems = async (req, res) => {
     if (starredItems.starredFolders.length > 0) {
       const removedStarredFolders = await Folder.updateMany(
         { _id: { $in: starredItems.starredFolders }, owner: req.user._id },
-        { $set: { "isStarred.status": false } }
+        { $set: { isStarred: false } }
       );
-      if (!removedStarredFolders || removedStarredFolders.nModified === 0) {
+      if (removedStarredFolders.nModified == 0) {
         throw new Error("Folders not found or not owned by user");
       }
     }

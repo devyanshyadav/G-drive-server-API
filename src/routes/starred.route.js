@@ -9,6 +9,6 @@ const starredRouter = Router();
 
 starredRouter.route("/add-to-starred").post(addToStarred);
 starredRouter.route("/get-starred-items").get(starredItems);
-starredRouter.route("/removed-from-starred").post(removeStarredItems);
+starredRouter.route("/remove-starred-items").post(removeStarredItems);
 
 export default starredRouter;
