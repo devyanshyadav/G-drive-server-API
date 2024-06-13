@@ -111,6 +111,46 @@ const trashedItems = async (req, res) => {
   }
 };
 
+// Function to restore trashed items
+const restoreTrashedItems = async (req, res) => {
+  const { trashedItems } = req.body;
+
+  if (
+    !trashedItems ||
+    typeof trashedItems !== "object" ||
+    (!trashedItems.trashFiles.length && !trashedItems.trashFolders.length)
+  ) {
+    return sendErrorResponse(res, "Invalid trashedItems format", 400);
+  }
+
+  try {
+    if (trashedItems.trashFiles.length > 0) {
+      const restoredFiles = await File.updateMany(
+        { _id: { $in: trashedItems.trashFiles }, owner: req.user._id },
+        { $set: { isTrashed: { status: false } } }
+      );
+      if (restoredFiles.nModified === 0) {
+        throw new Error("Files not found or not owned by user");
+      }
+    }
+
+    if (trashedItems.trashFolders.length > 0) {
+      const restoredFolders = await Folder.updateMany(
+        { _id: { $in: trashedItems.trashFolders }, owner: req.user._id },
+        { $set: { isTrashed: { status: false } } }
+      );
+      if (restoredFolders.nModified === 0) {
+        throw new Error("Folders not found or not owned by user");
+      }
+    }
+
+    return sendSuccessResponse(res, "Items restored successfully", 200);
+  } catch (error) {
+    return sendErrorResponse(res, error.message, 400);
+  }
+};
+
+// Function to delete trashed items
 const deleteTrashedItems = async (req, res) => {
   const { trashedItems } = req.body;
   const userId = req.user._id;
@@ -154,4 +194,4 @@ const deleteTrashedItems = async (req, res) => {
   }
 };
 
-export { moveToTrash, trashedItems, deleteTrashedItems };
+export { moveToTrash, trashedItems, restoreTrashedItems, deleteTrashedItems };

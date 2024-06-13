@@ -31,7 +31,8 @@ const folderSchema = new Schema(
       type: Boolean,
     },
 
-    subFolders: [{ type: Schema.Types.ObjectId, ref: "Folder" }],
+    // subFolders: [{ type: Schema.Types.ObjectId, ref: "Folder" }], 
+    // subFolders are populated during accessing all folders in get request
   },
   { timestamps: true }
 );
