@@ -114,6 +114,7 @@ const trashedItems = async (req, res) => {
 const deleteTrashedItems = async (req, res) => {
   const { trashedItems } = req.body;
   const userId = req.user._id;
+
   // Check if trashedItems is a valid object and has trashedFiles and trashedFolders properties
   if (
     !trashedItems ||
@@ -126,22 +127,24 @@ const deleteTrashedItems = async (req, res) => {
   try {
     // Delete the files and folders owned by the user
     if (trashedItems.trashedFiles.length > 0) {
-      const files = await File.deleteMany({
+      const fileDeleteResult = await File.deleteMany({
         _id: { $in: trashedItems.trashedFiles },
         owner: userId,
       });
-      if (!files) {
-        throw new Error("Items not found");
+
+      if (fileDeleteResult.deletedCount === 0) {
+        throw new Error("Files not found");
       }
     }
-    if (trashedItems && trashedItems.trashedFolders.length > 0) {
-      const folders = await Folder.deleteMany({
+
+    if (trashedItems.trashedFolders.length > 0) {
+      const folderDeleteResult = await Folder.deleteMany({
         _id: { $in: trashedItems.trashedFolders },
         owner: userId,
       });
 
-      if (!folders) {
-        throw new Error("Items not found");
+      if (folderDeleteResult.deletedCount === 0) {
+        throw new Error("Folders not found");
       }
     }
 
