@@ -26,7 +26,7 @@ src
 ├── middleware
 │   ├── auth.middleware.js      // (for protected routes) ---verified---
 │   ├── multer.middleware.js    // (for uploading files) ---verified---
-│   └── validator.middleware.js // (validating input fields while registering) ---verified---
+│   └── validator.middleware.js // (validating input fields while logging and registering) ---verified---
 │
 ├── routes
 │   ├── user.route.js           // (/register, /login, /logout, /getuser, /forget, /reset) ---verified---
@@ -44,7 +44,7 @@ src
 │   └── nodemailer.js           // (for sending mail) ---verified---
 │
 ├── validators
-│   └── auth.validator.js       // (schema for validating input fields while registering) ---verified---
+│   └── auth.validator.js       // (schema for validating input fields while logging and registering) ---verified---
 │
 ├── app.js                      // (for starting server)
 ├── index.js                    // (entry point of server)
