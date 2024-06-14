@@ -1,17 +1,32 @@
 {
-  "name": "google-drive-server",
+  "name": "google-drive-api",
   "version": "1.0.0",
-  "description": "Server for google drive",
+  "description": "A comprehensive Google Drive API project that mimics the functionality of Google Drive.",
   "main": "",
   "type": "module",
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js"
   },
-  "keywords": [
-    "google-drive",
-    "clone"
-  ],
+"keywords": [
+    "google-drive-api",
+    "clone",
+    "g-drive",
+    "google drive clone",
+    "google drive api",
+    "drive clone",
+    "google drive integration",
+    "google drive automation",
+    "google drive sync",
+    "google drive backup",
+    "google drive migration",
+    "google drive data transfer",
+    "google drive file transfer",
+    "google drive folder transfer",
+    "google drive data migration",
+    "google drive file migration",
+    "google drive folder migration"
+],
   "author": "Devyansh",
   "license": "ISC",
   "dependencies": {
