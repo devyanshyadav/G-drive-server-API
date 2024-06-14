@@ -1,6 +1,6 @@
-# Google Drive Clone
+# Google Drive API
 
-A comprehensive Google Drive clone project that mimics the functionality of Google Drive.
+A comprehensive Google Drive API project that mimics the functionality of Google Drive.
 
 ## Folder Structure
 
