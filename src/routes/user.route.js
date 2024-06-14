@@ -8,15 +8,15 @@ import {
   registerUser,
   resetPassword,
 } from "../controllers/user.controllers.js";
-import registerSchema from "../validators/auth.validator.js";
 import upload from "../middlewares/multer.middleware.js";
 import refreshTokenInstance from "../controllers/refreshToken.controller.js";
 import verifyJWT from "../middlewares/auth.middleware.js";
+import { loginSchema, registerSchema } from "../validators/auth.validator.js";
 
 const userRouter = Router();
 
 userRouter.route("/register").post(validate(registerSchema), registerUser);
-userRouter.route("/login").post(loginUser);
+userRouter.route("/login").post(validate(loginSchema) ,loginUser);
 userRouter.route("/logout").post(verifyJWT, logoutUser);
 userRouter.route("/getuser").get(verifyJWT, getCurrentUser);
 userRouter.route("/forget").post(forgetUserPassword);
